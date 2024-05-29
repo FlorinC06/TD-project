@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adăugare Produs</title>
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #FFFAF0;
+            background-image: url('imagine.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+    
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #FFFFFF;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    
+        .title {
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            border: 2px solid #A8D5BA;
+            border-radius: 5px;
+            background-color: #A8D5BA;
+            color: #FFFFFF;
+            font-size: 24px;
+            text-align: center;
+        }
+    
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+    
+    
+        #addButton,
+        #backButton,
+        form button[type="submit"] {
+            background-color: #A8D5BA;
+            color: #FFFFFF;
+        }
+    
+        #addButton:hover,
+        #backButton:hover,
+        form button[type="submit"]:hover {
+            background-color: #91c7a5;
+            transform: scale(1.1);
+        }
+    
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 300px;
+        }
+    
+        form label {
+            margin-top: 10px;
+        }
+    
+        form input,
+        form textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+    </style>
+    
+    
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Adăugare Produs</h1>
+        <form id="addForm">
+            <label for="name">Nume:</label><br>
+            <input type="text" id="name" name="name"><br>
+            <label for="category">Categorie:</label><br>
+            <input type="text" id="category" name="category"><br>
+            <label for="price">Preț:</label><br>
+            <input type="number" id="price" name="price"><br>
+            <label for="description">Descriere:</label><br>
+            <textarea id="description" name="description"></textarea><br>
+            <button type="button" onclick="addProduct()" id="addButton">Adaugă Produs</button>
+            <button type="button" onclick="goBack()" id="backButton">Înapoi</button> 
+        </form>
+    </div>
+
+    <script>
+        async function addProduct() {
+            const name = document.getElementById('name').value;
+            const category = document.getElementById('category').value;
+            const price = parseFloat(document.getElementById('price').value);
+            const description = document.getElementById('description').value;
+
+            const product = {
+                name: name,
+                category: category,
+                price: price,
+                description: description
+            };
+
+            try {
+                const response = await fetch('/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(product)
+                });
+
+                if (response.ok) {
+                    const message = await response.text();
+                    alert(message);
+                    document.getElementById('addForm').reset();
+                } else {
+                    throw new Error('Eroare la adăugarea produsului');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Eroare la adăugarea produsului. Te rog să încerci din nou mai târziu.');
+            }
+        }
+
+        function goBack() {
+            window.history.back(); 
+        }
+    </script>
+</body>
+</html>

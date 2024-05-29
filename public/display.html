@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Afișare Produse</title>
+    <link rel="stylesheet" href="/styles.css"> 
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('imagine.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            color: #000000;
+        }
+    
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding-top: 50px;
+        }
+    
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+    
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+    
+        th {
+            background-color: #f2f2f2;
+        }
+    
+        .delete-button {
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #ff0000;
+            transition: background-color 0.3s;
+        }
+    
+        .delete-button:hover {
+            background-color: #cc0000;
+        }
+    
+        .buttons-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+    
+        .buttons-container button {
+            margin: 0 10px;
+        }
+    </style>
+    
+</head>
+<body>
+    <div class="container">
+        <h1>Afișare Produse</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nume</th>
+                    <th>Categorie</th>
+                    <th>Preț</th>
+                    <th>Descriere</th>
+                    <th>Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody id="productList">
+                
+            </tbody>
+        </table>
+        <div class="buttons-container">
+            <button onclick="goBack()">Înapoi</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            async function displayProducts() {
+                const productList = document.getElementById('productList');
+                try {
+                    const response = await fetch('/display');
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    const products = await response.json();
+
+                    products.forEach(product => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${product.name}</td>
+                            <td>${product.category}</td>
+                            <td>${product.price}</td>
+                            <td>${product.description}</td>
+                            <td>
+                                <button class="delete-button" onclick="deleteProduct('${product._id}')">Șterge</button>
+                            </td>
+                        `;
+                        productList.appendChild(row);
+                    });
+                } catch (error) {
+                    console.error(error);
+                    alert('Eroare la afișarea produselor.');
+                }
+            }
+
+            displayProducts();
+        });
+
+        async function deleteProduct(productId) {
+            try {
+                const response = await fetch(`/delete/${productId}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error('Network response was not ok');
+                location.reload();
+            } catch (error) {
+                console.error(error);
+                alert('Eroare la ștergerea produsului.');
+            }
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Depozit de marfă</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        body {
+            background-image: url('imagine.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Depozit de marfă</h1>
+        <button id="addButton" onclick="goToAddPage()">Adaugă</button> 
+        <button id="editButton" onclick="goToEditPage()">Editează</button> 
+        <button id="displayButton" onclick="goToDisplayPage()">Afișează</button> 
+    </div>
+    <div id="output"></div>
+    <script src="/script.js"></script> 
+    <script>
+        function goToAddPage() {
+            window.location.href = "/add.html"; 
+        }
+
+        function goToEditPage() {
+            window.location.href = "/edit.html"; 
+        }
+
+        function goToDisplayPage() {
+            window.location.href = "/display.html";
+        }
+    </script>
+</body>
+</html>

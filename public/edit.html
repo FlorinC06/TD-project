@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Afișare Produse</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #000000; 
+            background-image: url('imagine.jpg'); 
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding-top: 50px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .edit-button {
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            transition: background-color 0.3s;
+        }
+        .edit-button:hover {
+            background-color: #45a049;
+        }
+        .buttons-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .buttons-container button {
+            margin: 0 10px;
+        }
+        .edit-form {
+            display: none;
+            margin-top: 20px;
+        }
+        .edit-form label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .edit-form input, .edit-form textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .edit-form button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .edit-form button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Afișare Produse</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nume</th>
+                    <th>Categorie</th>
+                    <th>Preț</th>
+                    <th>Descriere</th>
+                    <th>Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody id="productList">
+                
+            </tbody>
+        </table>
+        <div class="buttons-container">
+            <button onclick="goBack()">Înapoi</button>
+        </div>
+
+        
+        <div class="edit-form" id="editForm">
+            <h2 class="title">Editare Produs</h2>
+            <label for="name">Nume:</label>
+            <input type="text" id="name" name="name">
+            <label for="category">Categorie:</label>
+            <input type="text" id="category" name="category">
+            <label for="price">Preț:</label>
+            <input type="number" id="price" name="price">
+            <label for="description">Descriere:</label>
+            <textarea id="description" name="description"></textarea>
+            <button id="saveButton">Salvează Modificările</button>
+            <button onclick="cancelEdit()">Anulează</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            displayProducts(); 
+        });
+
+        let currentProductId;
+        let currentRow;
+
+        async function displayProducts() {
+            const productList = document.getElementById('productList');
+            try {
+                const response = await fetch('/display');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const products = await response.json();
+
+                
+                productList.innerHTML = '';
+
+                products.forEach(product => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${product.name}</td>
+                        <td>${product.category}</td>
+                        <td>${product.price}</td>
+                        <td>${product.description}</td>
+                        <td>
+                            <button class="edit-button" onclick="editProduct('${product._id}', this)">Editează</button>
+                        </td>
+                    `;
+                    productList.appendChild(row);
+                });
+            } catch (error) {
+                console.error(error);
+                alert('Eroare la afișarea produselor.');
+            }
+        }
+
+        async function editProduct(productId, button) {
+            currentProductId = productId;
+            currentRow = button.parentElement.parentElement;
+            try {
+                const response = await fetch(`/details/${productId}`);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const product = await response.json();
+
+                
+                document.getElementById('name').value = product.name;
+                document.getElementById('category').value = product.category;
+                document.getElementById('price').value = product.price;
+                document.getElementById('description').value = product.description;
+
+                
+                document.getElementById('editForm').style.display = 'block';
+
+            } catch (error) {
+                console.error(error);
+                alert('Eroare la încărcarea detaliilor produsului pentru editare.');
+            }
+        }
+
+        async function updateProduct() {
+            const name = document.getElementById('name').value;
+            const category = document.getElementById('category').value;
+            const price = document.getElementById('price').value;
+            const description = document.getElementById('description').value;
+
+            try {
+                const response = await fetch(`/update/${currentProductId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, category, price, description })
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                alert('Produsul a fost actualizat cu succes.');
+
+                
+                document.getElementById('editForm').style.display = 'none';
+                updateTableRow({ name, category, price, description });
+            } catch (error) {
+                console.error(error);
+                alert('Eroare la actualizarea produsului.');
+            }
+        }
+
+        function updateTableRow(product) {
+            currentRow.cells[0].textContent = product.name;
+            currentRow.cells[1].textContent = product.category;
+            currentRow.cells[2].textContent = product.price;
+            currentRow.cells[3].textContent = product.description;
+        }
+
+        function cancelEdit() {
+            document.getElementById('editForm').style.display = 'none';
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+
+        document.getElementById('saveButton').addEventListener('click', updateProduct);
+    </script>
+</body>
+</html>
